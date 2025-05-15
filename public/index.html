@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CS2 Demo Crosshair Code Extractor</title>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            max-width: 1600px;
+            background-color: #252526;
+        }
+        .left {
+            width: 50%;
+            background-color: #2d2d2d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .left label {
+            color: #a0d5f8;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .left input[type="file"], .button, input[type="submit"] {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            padding: 10px;
+            border: none;
+            text-align: center;
+            cursor: pointer;
+            background-color: #a0d5f8;
+            color: #ffffff;
+            font-weight: bold;
+            transition: 0.3s;
+            border-radius: 5px;
+        }
+        .button:hover, input[type="submit"]:hover {
+            background-color: #8bc9f2;
+        }
+        .right {
+            width: 50%;
+            background-color: #2d2d2d;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .crosshair-box {
+            background-color: #2d2d2d;
+            border: 2px solid #a0d5f8;
+            padding: 10px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 48%;
+        }
+        .crosshair-box:hover {
+            background-color: #3a3a3a;
+        }
+        .crosshair-box strong {
+            font-size: 16px;
+            display: block;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #a0d5f8;
+        }
+        .crosshair-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .top-row, .bottom-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .crosshair-box {
+            width: 48%;
+        }
+        .header {
+            width: 100%;
+            background-color: #2d2d2d;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .csgo {
+            font-size: 11px;
+            text-decoration: line-through;
+        }
+        .kda {
+            font-size: 12px;
+            color: #a0d5f8;
+            margin-top: 5px;
+        }
+        /* GitHub logo */
+        .github-logo {
+            position: absolute;
+            bottom: 20px;  /* Adjust bottom distance */
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally */
+            width: 30px; /* Smaller size */
+            height: 30px; /* Smaller size */
+        }
+        .github-logo img {
+            filter: invert(100%);
+            width: 100%;  /* Ensure the image takes the full width */
+            height: 100%;  /* Ensure the image takes the full height */
+        }
+    </style>
+    
+<script>
+  function copyCrosshairCode(code) {
+    navigator.clipboard.writeText(code).then(() => {
+      alert('Crosshair code copied to clipboard!');
+    });
+  }
+
+  async function uploadDemo(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+
+    const response = await fetch('/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      alert('Error: ' + (error.error || 'Unknown error'));
+      return;
+    }
+
+    const data = await response.json();
+    displayCrosshairs(data.players);
+  }
+
+  function displayCrosshairs(players) {
+    const container = document.querySelector('.crosshair-container');
+    container.innerHTML = '';
+
+    if (!players || players.length === 0) {
+      container.innerHTML = '<p>No crosshairs extracted yet.</p>';
+      return;
+    }
+
+    // Split into two rows of max 5 each
+    const topRow = document.createElement('div');
+    topRow.classList.add('top-row');
+    const bottomRow = document.createElement('div');
+    bottomRow.classList.add('bottom-row');
+
+    players.forEach((p, i) => {
+      const box = document.createElement('div');
+      box.className = 'crosshair-box';
+      box.onclick = () => copyCrosshairCode(p.crosshair_code);
+
+      box.innerHTML = `
+        <strong>${p.name || 'Unknown'}</strong><br>
+        ${p.crosshair_code || 'No code'}
+      `;
+
+      if (i < 5) {
+        topRow.appendChild(box);
+      } else {
+        bottomRow.appendChild(box);
+      }
+    });
+
+    container.appendChild(topRow);
+    container.appendChild(bottomRow);
+  }
+</script>
+</head>
+<body>
+  <div class="container">
+    <div class="left">
+      <div class="header">
+        <h3>CS2 Demo Crosshair Code Extractor <br><span class="csgo">CSGO not supported</span></h3>
+      </div>
+      <form method="POST" enctype="multipart/form-data" onsubmit="uploadDemo(event)">
+        <label for="demo_file">Choose a demo file (.dem):</label><br />
+        <input type="file" name="demo_file" id="demo_file" accept=".dem" required /><br />
+        <input type="submit" value="Upload Demo" />
+      </form>
+    </div>
+    <div class="right">
+      <div class="header">
+        <h3>Crosshairs</h3>
+      </div>
+      <div class="crosshair-container">
+        <p>No crosshairs extracted yet.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GitHub logo -->
+  <a href="https://github.com/leotrimhaliti" target="_blank" class="github-logo">
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Octicons-mark-github.svg/2048px-Octicons-mark-github.svg.png"
+      alt="GitHub"
+    />
+  </a>
+</body>
+</html>

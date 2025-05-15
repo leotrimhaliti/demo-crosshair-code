@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CS2 Demo Analyzer</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Upload CS2 .dem File</h1>
+  <form action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="demo_file" required>
+    <button type="submit">Upload</button>
+  </form>
+
+  <% if (crosshairData && kdaData) { %>
+    <h2>Crosshair Codes</h2>
+    <ul>
+      <% for (const player in crosshairData) { %>
+        <li><strong><%= player %></strong>: <%= crosshairData[player] %></li>
+      <% } %>
+    </ul>
+
+    <h2>KDA Stats</h2>
+    <ul>
+      <% for (const player in kdaData) { %>
+        <li><strong><%= player %></strong>: 
+          <%= kdaData[player].kills %> kills,
+          <%= kdaData[player].deaths %> deaths,
+          <%= kdaData[player].mvps %> MVPs,
+          <%= kdaData[player].headshot_kills %> HS,
+          <%= kdaData[player].ace_rounds %> Aces
+        </li>
+      <% } %>
+    </ul>
+  <% } %>
+</body>
+</html>

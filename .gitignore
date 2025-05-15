@@ -1,0 +1,6 @@
+node_modules/
+*.dem
+*.log
+dist/
+build/
+uploads/
